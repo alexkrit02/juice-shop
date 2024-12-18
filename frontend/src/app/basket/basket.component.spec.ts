@@ -26,10 +26,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
 describe('BasketComponent', () => {
   let component: BasketComponent
   let fixture: ComponentFixture<BasketComponent>
-  let deluxeGuard
-  let snackBar: any
+  let deluxeGuard: jasmine.SpyObj<DeluxeGuard>
+  let snackBar: jasmine.SpyObj<MatSnackBar>
 
   beforeEach(waitForAsync(() => {
+    deluxeGuard = jasmine.createSpyObj('DeluxeGuard', ['canActivate'])
+    snackBar = jasmine.createSpyObj('MatSnackBar', ['open'])
+
     TestBed.configureTestingModule({
       declarations: [BasketComponent, PurchaseBasketComponent],
       imports: [
@@ -78,7 +81,8 @@ describe('BasketComponent', () => {
 
   it('should store itemTotal in session storage', () => {
     spyOn(sessionStorage, 'setItem')
-    component.getBonusPoints([1, 10])
-    expect(sessionStorage.setItem).toHaveBeenCalledWith('itemTotal', 1 as any)
+    const bonus = 1
+    component.getBonusPoints([bonus, 10])
+    expect(sessionStorage.setItem).toHaveBeenCalledWith('itemTotal', bonus.toString())
   })
 })
