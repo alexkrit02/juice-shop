@@ -7,18 +7,18 @@ import { type ComponentFixture, fakeAsync, TestBed, waitForAsync } from '@angula
 import { TranslateModule } from '@ngx-translate/core'
 import { TokenSaleComponent } from './token-sale.component'
 import { of, throwError } from 'rxjs'
-import { ConfigurationService } from '../Services/configuration.service'
+import { ConfigurationService , Config} from '../Services/configuration.service'
 import { MatCardModule } from '@angular/material/card'
 import { MatButtonModule } from '@angular/material/button'
 
 describe('TokenSaleComponent', () => {
   let component: TokenSaleComponent
   let fixture: ComponentFixture<TokenSaleComponent>
-  let configurationService: any
+  let configurationService: jasmine.SpyObj<ConfigurationService>
 
   beforeEach(waitForAsync(() => {
     configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } } as Config))
     TestBed.configureTestingModule({
       declarations: [TokenSaleComponent],
       imports: [
@@ -44,7 +44,7 @@ describe('TokenSaleComponent', () => {
   })
 
   it('should set altcoinName as obtained from configuration', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { altcoinName: 'Coin' } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { altcoinName: 'Coin' } }as Config))
     component.ngOnInit()
     expect(component.altcoinName).toBe('Coin')
   })

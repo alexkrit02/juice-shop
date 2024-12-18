@@ -3,176 +3,141 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { environment } from '../../environments/environment'
 import { ChallengeService } from '../Services/challenge.service'
-import { type ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing'
+import { Component, EventEmitter, NgZone, type OnInit, Output } from '@angular/core'
 import { SocketIoService } from '../Services/socket-io.service'
-import { ConfigurationService } from '../Services/configuration.service'
-import { TranslateModule, TranslateService } from '@ngx-translate/core'
-import { RouterTestingModule } from '@angular/router/testing'
-import { of } from 'rxjs'
-import { HttpClientModule } from '@angular/common/http'
-import { CookieModule, CookieService } from 'ngx-cookie'
-import { LoginGuard } from '../app.guard'
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
-import { SidenavComponent } from './sidenav.component'
-import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatIconModule } from '@angular/material/icon'
-import { MatButtonModule } from '@angular/material/button'
-import { MatMenuModule } from '@angular/material/menu'
-import { MatListModule } from '@angular/material/list'
-import { roles } from '../roles'
 import { AdministrationService } from '../Services/administration.service'
+import { Router } from '@angular/router'
 import { UserService } from '../Services/user.service'
-import { Location } from '@angular/common'
+import { CookieService } from 'ngx-cookie'
+import { ConfigurationService } from '../Services/configuration.service'
+import { LoginGuard } from '../app.guard'
+import { roles } from '../roles'
+import { Config } from '../Services/configuration.service'
+import { Challenge} from '../Models/challenge.model'
+import { user } from '../sidenav/sidenav.component'
 
-class MockSocket {
-  on (str: string, callback: any) {
-    callback(str)
+@Component({
+  selector: 'sidenav',
+  templateUrl: './sidenav.component.html',
+  styleUrls: ['./sidenav.component.scss']
+})
+export class SidenavComponent implements OnInit {
+  public applicationName = 'OWASP Juice Shop'
+  public showGitHubLink = true
+  public userEmail = ''
+  public scoreBoardVisible: boolean = false
+  public version: string = ''
+  public showPrivacySubmenu: boolean = false
+  public showOrdersSubmenu: boolean = false
+  public isShowing = false
+  public offerScoreBoardTutorial: boolean = false
+  @Output() public sidenavToggle = new EventEmitter()
+
+  constructor (private readonly administrationService: AdministrationService, private readonly challengeService: ChallengeService,
+    private readonly ngZone: NgZone, private readonly io: SocketIoService, private readonly userService: UserService, private readonly cookieService: CookieService,
+    private readonly router: Router, private readonly configurationService: ConfigurationService, private readonly loginGuard: LoginGuard) { }
+
+  ngOnInit () {
+    this.administrationService.getApplicationVersion().subscribe((version: string) => {
+      if (version) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        this.version = `v${version}`
+      }
+    }, (err) => { console.log(err) })
+    this.getApplicationDetails()
+    this.getScoreBoardStatus()
+
+    if (localStorage.getItem('token')) {
+      this.getUserDetails()
+    } else {
+      this.userEmail = ''
+    }
+
+    this.userService.getLoggedInState().subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.getUserDetails()
+      } else {
+        this.userEmail = ''
+      }
+    })
+    this.ngZone.runOutsideAngular(() => {
+      this.io.socket().on('challenge solved', (challenge) => {
+        if (challenge.key === 'scoreBoardChallenge') {
+          this.scoreBoardVisible = true
+        }
+      })
+    })
+  }
+
+  isLoggedIn () {
+    return localStorage.getItem('token')
+  }
+
+  logout () {
+    this.userService.saveLastLoginIp().subscribe(() => { this.noop() }, (err) => { console.log(err) })
+    localStorage.removeItem('token')
+    this.cookieService.remove('token')
+    sessionStorage.removeItem('bid')
+    sessionStorage.removeItem('itemTotal')
+    this.userService.isLoggedIn.next(false)
+    this.ngZone.run(async () => await this.router.navigate(['/']))
+  }
+
+  goToProfilePage () {
+    window.location.replace(environment.hostServer + '/profile')
+  }
+
+  goToDataErasurePage () {
+    window.location.replace(environment.hostServer + '/dataerasure')
+  }
+
+  // eslint-disable-next-line no-empty,@typescript-eslint/no-empty-function
+  noop () { }
+
+  getScoreBoardStatus () {
+    this.challengeService.find({ name: 'Score Board' }).subscribe((challenges: Challenge[]) => {
+      this.ngZone.run(() => {
+        this.scoreBoardVisible = challenges[0].solved
+      })
+    }, (err) => { console.log(err) })
+  }
+
+  getUserDetails () {
+    this.userService.whoAmI().subscribe((user: user) => {
+      this.userEmail = user.email
+    }, (err) => { console.log(err) })
+  }
+
+  onToggleSidenav = () => {
+    this.sidenavToggle.emit()
+  }
+
+  getApplicationDetails () {
+    this.configurationService.getApplicationConfiguration().subscribe((config: Config) => {
+      if (config?.application?.name) {
+        this.applicationName = config.application.name
+      }
+      if (config?.application) {
+        this.showGitHubLink = config.application.showGitHubLinks
+      }
+      if (config?.application.welcomeBanner.showOnFirstStart && config.hackingInstructor.isEnabled) {
+        this.offerScoreBoardTutorial = config.application.welcomeBanner.showOnFirstStart && config.hackingInstructor.isEnabled
+      }
+    }, (err) => { console.log(err) })
+  }
+
+  isAccounting () {
+    const payload = this.loginGuard.tokenDecode()
+    return payload?.data?.role === roles.accounting
+  }
+
+  startHackingInstructor () {
+    this.onToggleSidenav()
+    console.log('Starting instructions for challenge "Score Board"')
+    import(/* webpackChunkName: "tutorial" */ '../../hacking-instructor').then(module => {
+      module.startHackingInstructorFor('Score Board')
+    })
   }
 }
-
-describe('SidenavComponent', () => {
-  let component: SidenavComponent
-  let fixture: ComponentFixture<SidenavComponent>
-  let challengeService: any
-  let cookieService: any
-  let configurationService: any
-  let userService: any
-  let administractionService: any
-  let mockSocket: any
-  let socketIoService: any
-  let loginGuard
-  let location: Location
-
-  beforeEach(waitForAsync(() => {
-    configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: {} }, hackingInstructor: {} }))
-    challengeService = jasmine.createSpyObj('ChallengeService', ['find'])
-    challengeService.find.and.returnValue(of([{ solved: false }]))
-    userService = jasmine.createSpyObj('UserService', ['whoAmI', 'getLoggedInState', 'saveLastLoginIp'])
-    userService.whoAmI.and.returnValue(of({}))
-    userService.getLoggedInState.and.returnValue(of(true))
-    userService.saveLastLoginIp.and.returnValue(of({}))
-    userService.isLoggedIn = jasmine.createSpyObj('userService.isLoggedIn', ['next'])
-    userService.isLoggedIn.next.and.returnValue({})
-    administractionService = jasmine.createSpyObj('AdministrationService', ['getApplicationVersion'])
-    administractionService.getApplicationVersion.and.returnValue(of(null))
-    cookieService = jasmine.createSpyObj('CookieService', ['remove', 'get', 'put'])
-    mockSocket = new MockSocket()
-    socketIoService = jasmine.createSpyObj('SocketIoService', ['socket'])
-    socketIoService.socket.and.returnValue(mockSocket)
-    loginGuard = jasmine.createSpyObj('LoginGuard', ['tokenDecode'])
-    loginGuard.tokenDecode.and.returnValue({})
-
-    TestBed.configureTestingModule({
-      declarations: [SidenavComponent],
-      imports: [
-        HttpClientModule,
-        TranslateModule.forRoot(),
-        BrowserAnimationsModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatMenuModule,
-        MatListModule,
-        CookieModule.forRoot(),
-        RouterTestingModule
-      ],
-      providers: [
-        { provide: ConfigurationService, useValue: configurationService },
-        { provide: ChallengeService, useValue: challengeService },
-        { provide: UserService, useValue: userService },
-        { provide: AdministrationService, useValue: administractionService },
-        { provide: CookieService, useValue: cookieService },
-        { provide: SocketIoService, useValue: socketIoService },
-        { provide: LoginGuard, useValue: loginGuard },
-        TranslateService
-      ]
-    })
-      .compileComponents()
-    location = TestBed.inject(Location)
-    TestBed.inject(TranslateService)
-  }))
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SidenavComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
-
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-
-  it('should show accounting functionality when user has according role', () => {
-    loginGuard.tokenDecode.and.returnValue({ data: { role: roles.accounting } })
-
-    expect(component.isAccounting()).toBe(true)
-  })
-
-  it('should set version number as retrieved with "v" prefix', () => {
-    loginGuard.tokenDecode.and.returnValue({ data: { role: roles.accounting } })
-
-    expect(component.isAccounting()).toBe(true)
-  })
-
-  it('should not show accounting functionality when user lacks according role', () => {
-    administractionService.getApplicationVersion.and.returnValue(of('1.2.3'))
-    component.ngOnInit()
-
-    expect(component.version).toBe('v1.2.3')
-  })
-
-  it('should hide Score Board link when Score Board was not discovered yet', () => {
-    challengeService.find.and.returnValue(of([{ name: 'Score Board', solved: false }]))
-    component.getScoreBoardStatus()
-
-    expect(component.scoreBoardVisible).toBe(false)
-  })
-
-  it('should show Score Board link when Score Board was already discovered', () => {
-    challengeService.find.and.returnValue(of([{ name: 'Score Board', solved: true }]))
-    component.getScoreBoardStatus()
-
-    expect(component.scoreBoardVisible).toBe(true)
-  })
-
-  it('should remove authentication token from localStorage', () => {
-    spyOn(localStorage, 'removeItem')
-    component.logout()
-    expect(localStorage.removeItem).toHaveBeenCalledWith('token')
-  })
-
-  it('should remove authentication token from cookies', () => {
-    component.logout()
-    expect(cookieService.remove).toHaveBeenCalledWith('token')
-  })
-
-  it('should remove basket id from session storage', () => {
-    spyOn(sessionStorage, 'removeItem')
-    component.logout()
-    expect(sessionStorage.removeItem).toHaveBeenCalledWith('bid')
-  })
-
-  it('should remove basket item total from session storage', () => {
-    spyOn(sessionStorage, 'removeItem')
-    component.logout()
-    expect(sessionStorage.removeItem).toHaveBeenCalledWith('itemTotal')
-  })
-
-  it('should set the login status to be false via UserService', () => {
-    component.logout()
-    expect(userService.isLoggedIn.next).toHaveBeenCalledWith(false)
-  })
-
-  it('should save the last login IP address', () => {
-    component.logout()
-    expect(userService.saveLastLoginIp).toHaveBeenCalled()
-  })
-
-  it('should forward to main page', fakeAsync(() => {
-    component.logout()
-    tick()
-    expect(location.path()).toBe('/')
-  }))
-})

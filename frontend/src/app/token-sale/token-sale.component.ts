@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { ConfigurationService } from '../Services/configuration.service'
+import { ConfigurationService, Config } from '../Services/configuration.service'
 import { Component, type OnInit } from '@angular/core'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faBitcoin } from '@fortawesome/free-brands-svg-icons'
@@ -22,7 +22,7 @@ export class TokenSaleComponent implements OnInit {
   constructor (private readonly configurationService: ConfigurationService) { }
 
   ngOnInit () {
-    this.configurationService.getApplicationConfiguration().subscribe((config: any) => {
+    this.configurationService.getApplicationConfiguration().subscribe((config: Config) => {
       if (config?.application?.altcoinName) {
         this.altcoinName = config.application.altcoinName
       }

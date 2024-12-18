@@ -14,6 +14,23 @@ import { CookieService } from 'ngx-cookie'
 import { ConfigurationService } from '../Services/configuration.service'
 import { LoginGuard } from '../app.guard'
 import { roles } from '../roles'
+import { Config } from '../Services/configuration.service'
+import { Challenge} from '../Models/challenge.model'
+
+export interface user{
+  id: number;
+  username: string;
+  email: string;
+  password: string,
+  role: string;
+  deluxeToken?: string; 
+  lastLoginIp?: string;
+  profileImage?: string;
+  totpSecret?: string;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 @Component({
   selector: 'sidenav',
@@ -37,7 +54,7 @@ export class SidenavComponent implements OnInit {
     private readonly router: Router, private readonly configurationService: ConfigurationService, private readonly loginGuard: LoginGuard) { }
 
   ngOnInit () {
-    this.administrationService.getApplicationVersion().subscribe((version: any) => {
+    this.administrationService.getApplicationVersion().subscribe((version: string) => {
       if (version) {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         this.version = `v${version}`
@@ -94,7 +111,7 @@ export class SidenavComponent implements OnInit {
   noop () { }
 
   getScoreBoardStatus () {
-    this.challengeService.find({ name: 'Score Board' }).subscribe((challenges: any) => {
+    this.challengeService.find({ name: 'Score Board' }).subscribe((challenges: Challenge[]) => {
       this.ngZone.run(() => {
         this.scoreBoardVisible = challenges[0].solved
       })
@@ -102,7 +119,7 @@ export class SidenavComponent implements OnInit {
   }
 
   getUserDetails () {
-    this.userService.whoAmI().subscribe((user: any) => {
+    this.userService.whoAmI().subscribe((user: user) => {
       this.userEmail = user.email
     }, (err) => { console.log(err) })
   }
@@ -112,7 +129,7 @@ export class SidenavComponent implements OnInit {
   }
 
   getApplicationDetails () {
-    this.configurationService.getApplicationConfiguration().subscribe((config: any) => {
+    this.configurationService.getApplicationConfiguration().subscribe((config: Config) => {
       if (config?.application?.name) {
         this.applicationName = config.application.name
       }

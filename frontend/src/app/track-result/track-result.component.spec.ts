@@ -17,15 +17,15 @@ import { of } from 'rxjs'
 describe('TrackResultComponent', () => {
   let component: TrackResultComponent
   let fixture: ComponentFixture<TrackResultComponent>
-  let trackOrderService: any
-  let sanitizer: any
+  let trackOrderService: jasmine.SpyObj<TrackOrderService>
+  let sanitizer: jasmine.SpyObj<DomSanitizer>
 
   beforeEach(waitForAsync(() => {
     trackOrderService = jasmine.createSpyObj('TrackOrderService', ['find'])
     trackOrderService.find.and.returnValue(of({ data: [{ }] }))
     sanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustHtml', 'sanitize'])
     sanitizer.bypassSecurityTrustHtml.and.callFake((args: any) => args)
-    sanitizer.sanitize.and.returnValue({})
+    sanitizer.sanitize.and.returnValue({} as string)
 
     TestBed.configureTestingModule({
       imports: [
