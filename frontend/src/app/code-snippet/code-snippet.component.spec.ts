@@ -17,25 +17,110 @@ import { of, throwError } from 'rxjs'
 import { CodeFixesService } from '../Services/code-fixes.service'
 import { VulnLinesService } from '../Services/vuln-lines.service'
 import { ChallengeService } from '../Services/challenge.service'
+import { Config } from '../Services/configuration.service';
+
 
 describe('CodeSnippetComponent', () => {
   let component: CodeSnippetComponent
   let fixture: ComponentFixture<CodeSnippetComponent>
-  let configurationService: any
-  let cookieService: any
-  let codeSnippetService: any
-  let codeFixesService: any
-  let vulnLinesService: any
-  let challengeService: any
+  let configurationService: jasmine.SpyObj<ConfigurationService>
+  let cookieService: jasmine.SpyObj<CookieService>
+  let codeSnippetService: jasmine.SpyObj<CodeSnippetService>
+  let codeFixesService: jasmine.SpyObj<CodeFixesService>
+  let vulnLinesService: jasmine.SpyObj<VulnLinesService>
+  let challengeService: jasmine.SpyObj<ChallengeService>
+ 
+  const mockConfig: Config = {
+    server: { port: 8080 },
+    application: {
+      domain: '',
+      name: '',
+      logo: '',
+      favicon: '',
+      theme: '',
+      showVersionNumber: false,
+      showGitHubLinks: false,
+      localBackupEnabled: false,
+      numberOfRandomFakeUsers: 0,
+      altcoinName: '',
+      privacyContactEmail: '',
+      social: {
+        twitterUrl: '',
+        facebookUrl: '',
+        slackUrl: '',
+        redditUrl: '',
+        pressKitUrl: '',
+        nftUrl: '',
+        questionnaireUrl: ''
+      },
+      recyclePage: {
+        topProductImage: '',
+        bottomProductImage: ''
+      },
+      welcomeBanner: {
+        showOnFirstStart: false,
+        title: '',
+        message: ''
+      },
+      cookieConsent: {
+        message: '',
+        dismissText: '',
+        linkText: '',
+        linkUrl: ''
+      },
+      securityTxt: {
+        contact: '',
+        encryption: '',
+        acknowledgements: ''
+      },
+      promotion: {
+        video: '',
+        subtitles: ''
+      },
+      easterEggPlanet: {
+        name: '',
+        overlayMap: ''
+      },
+      googleOauth: {
+        clientId: '',
+        authorizedRedirects: []
+      }
+    },
+    challenges: {
+      showSolvedNotifications: false,
+      showHints: false,
+      showMitigations: false,
+      codingChallengesEnabled: 'false',
+      restrictToTutorialsFirst: false,
+      safetyMode: 'none',
+      overwriteUrlForProductTamperingChallenge: '',
+      showFeedbackButtons: false
+    },
+    hackingInstructor: {
+      isEnabled: false,
+      avatarImage: ''
+    },
+    products: [],
+    memories: [],
+    ctf: {
+      showFlagsInNotifications: false,
+      showCountryDetailsInNotifications: '',
+      countryMapping: []
+    }
+  };
+  
 
   beforeEach(waitForAsync(() => {
     configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: {}, challenges: {} }))
+    configurationService.getApplicationConfiguration.and.returnValue(of(mockConfig));
+    
     cookieService = jasmine.createSpyObj('CookieService', ['put'])
     codeSnippetService = jasmine.createSpyObj('CodeSnippetService', ['get', 'check'])
-    codeSnippetService.get.and.returnValue(of({}))
+    codeSnippetService.get.and.returnValue(of({ snippet: 'Example snippet' }))
+    
     codeFixesService = jasmine.createSpyObj('CodeFixesService', ['get', 'check'])
-    codeFixesService.get.and.returnValue(of({}))
+    codeFixesService.get.and.returnValue(of({ fixes: ['Fix1', 'Fix2', 'Fix3'] }))
+    
     vulnLinesService = jasmine.createSpyObj('VulnLinesService', ['check'])
     challengeService = jasmine.createSpyObj('ChallengeService', ['continueCodeFindIt', 'continueCodeFixIt'])
     challengeService.continueCodeFindIt.and.returnValue(of('continueCodeFindIt'))
@@ -82,9 +167,9 @@ describe('CodeSnippetComponent', () => {
   })
 
   it('should set the retrieved snippet', () => {
-    codeSnippetService.get.and.returnValue(of({ snippet: 'Snippet' }))
+    codeSnippetService.get.and.returnValue(of({ snippet: 'Example snippet' }))
     component.ngOnInit()
-    expect(component.snippet).toEqual({ snippet: 'Snippet' })
+    expect(component.snippet).toEqual({ snippet: 'Example snippet' })
   })
 
   it('Default status and icons should reflect both challenge phases yet unsolved', () => {
@@ -182,14 +267,6 @@ describe('CodeSnippetComponent', () => {
     component.checkLines()
     expect(component.solved.findIt).toBeTrue()
   })
-
-  xit('correctly submitted vulnerable lines toggle tab to "Fix It" if code fixes exist', waitForAsync(() => {
-    component.tab.setValue(0)
-    component.fixes = ['Fix1', 'Fix2', 'Fix3']
-    vulnLinesService.check.and.returnValue(of({ verdict: true }))
-    component.checkLines()
-    expect(component.tab.value).toBe(1)
-  }))
 
   it('correctly submitted fix toggles positive verdict for "Fix It" phase', () => {
     component.tab.setValue(1)
