@@ -14,10 +14,10 @@ export default defineConfig({
     downloadsFolder: 'test/cypress/downloads',
     fixturesFolder: false,
     supportFile: 'test/cypress/support/e2e.ts',
-    setupNodeEvents (on: any) {
-      on('before:browser:launch', (browser: any = {}, launchOptions: any) => { // TODO Remove after upgrade to Cypress >=12.5.0 <or> Chrome 119 become available on GitHub Workflows, see https://github.com/cypress-io/cypress-documentation/issues/5479
+    setupNodeEvents (on: Cypress.PluginEvents) {
+      on('before:browser:launch', (browser: Cypress.Browser, launchOptions:  Cypress.BeforeBrowserLaunchOptions) => { // TODO Remove after upgrade to Cypress >=12.5.0 <or> Chrome 119 become available on GitHub Workflows, see https://github.com/cypress-io/cypress-documentation/issues/5479
         if (browser.name === 'chrome' && browser.isHeadless) {
-          launchOptions.args = launchOptions.args.map((arg: any) => {
+          launchOptions.args = launchOptions.args.map((arg: string) => {
             if (arg === '--headless') {
               return '--headless=new'
             }
@@ -33,7 +33,8 @@ export default defineConfig({
           return security.generateCoupon(discount)
         },
         GetBlueprint () {
-          for (const product of config.get<ProductConfig[]>('products')) {
+          const products = config.get<ProductConfig[]>('products');
+          for (const product of products) {
             if (product.fileForRetrieveBlueprintChallenge) {
               const blueprint = product.fileForRetrieveBlueprintChallenge
               return blueprint
@@ -54,8 +55,9 @@ export default defineConfig({
           )[0]
           return couponIntent
         },
-        GetFromMemories (property: string) {
-          for (const memory of config.get<MemoryConfig[]>('memories') as any) {
+        GetFromMemories (property: keyof MemoryConfig) {
+          const memories = config.get<MemoryConfig[]>('memories');
+          for (const memory of memories) {
             if (memory[property]) {
               return memory[property]
             }

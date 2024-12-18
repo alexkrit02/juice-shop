@@ -11,9 +11,11 @@ import path from 'path'
 import * as utils from '../lib/utils'
 import { challenges } from '../data/datacache'
 
-const libxml = require('libxmljs')
-const vm = require('vm')
-import * as unzipper from 'unzipper' // Σημειώστε ότι χρησιμοποιούμε τον τύπο από το unzipper
+
+import libxml from 'libxmljs'
+import vm from 'vm'
+import unzipper from 'unzipper'
+
 
 function ensureFileIsPassed({ file }: Request, res: Response, next: NextFunction) {
   if (file != null) {

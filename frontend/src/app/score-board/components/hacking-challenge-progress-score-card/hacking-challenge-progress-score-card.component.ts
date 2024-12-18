@@ -1,4 +1,4 @@
-import { Component, Input, type OnChanges, type OnInit, type SimpleChanges } from '@angular/core'
+import { Component, Input, type OnChanges, type OnInit} from '@angular/core'
 import { type EnrichedChallenge } from '../../types/EnrichedChallenge'
 
 @Component({
@@ -16,7 +16,7 @@ export class HackingChallengeProgressScoreCardComponent implements OnInit, OnCha
     this.updatedNumberOfSolvedChallenges()
   }
 
-  ngOnChanges (changes: SimpleChanges): void {
+  ngOnChanges (): void {
     this.updatedNumberOfSolvedChallenges()
   }
 

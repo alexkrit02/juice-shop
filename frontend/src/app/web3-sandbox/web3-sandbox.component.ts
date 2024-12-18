@@ -249,7 +249,7 @@ contract HelloWorld {
     }
   }
 
-  async handleChainChanged (chainId: string) {
+  async handleChainChanged () {
     await this.handleAuth()
   }
 

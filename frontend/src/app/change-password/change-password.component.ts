@@ -40,7 +40,7 @@ export class ChangePasswordComponent {
       current: this.passwordControl.value,
       new: this.newPasswordControl.value,
       repeat: this.repeatNewPasswordControl.value
-    }).subscribe((response: any) => {
+    }).subscribe(() => {
       this.error = undefined
       this.translate.get('PASSWORD_SUCCESSFULLY_CHANGED').subscribe((passwordSuccessfullyChanged) => {
         this.confirmation = passwordSuccessfullyChanged

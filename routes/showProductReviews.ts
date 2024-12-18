@@ -5,12 +5,12 @@
 
 import utils = require('../lib/utils')
 import challengeUtils = require('../lib/challengeUtils')
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response } from 'express'
 import { type Review } from 'data/types'
 import * as db from '../data/mongodb'
 import { challenges } from '../data/datacache'
 
-const security = require('../lib/insecurity')
+import * as security from '../lib/insecurity'
 
 // Blocking sleep function as in native MongoDB
 // @ts-expect-error FIXME Type safety broken for global object

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { type NextFunction, type Request, type Response } from 'express'
+import { type Request, type Response } from 'express'
 import fs from 'fs'
 import yaml from 'js-yaml'
 import { getCodeChallenges } from '../lib/codingChallenges'
@@ -21,14 +21,22 @@ interface VerdictRequestBody {
   key: string
 }
 
-const setStatusCode = (error: any) => {
-  switch (error.name) {
-    case 'BrokenBoundary':
-      return 422
-    default:
-      return 200
-  }
+interface CustomError extends Error {
+  name: string;
 }
+
+const setStatusCode = (error: unknown): number => {
+  if (error instanceof Error && 'name' in error) {
+    const customError = error as CustomError;
+    switch (customError.name) {
+      case 'BrokenBoundary':
+        return 422;
+      default:
+        return 200;
+    }
+  }
+  return 500; // Default status code for unknown errors
+};
 
 export const retrieveCodeSnippet = async (challengeKey: string) => {
   const codeChallenges = await getCodeChallenges()

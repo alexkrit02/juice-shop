@@ -5,6 +5,7 @@ import { type Config } from 'src/app/Services/configuration.service'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { EnrichedChallenge } from '../../types/EnrichedChallenge'
 
 describe('ChallengeCard', () => {
   let component: ChallengeCardComponent
@@ -20,15 +21,20 @@ describe('ChallengeCard', () => {
     fixture = TestBed.createComponent(ChallengeCardComponent)
     component = fixture.componentInstance
 
+    // Correctly typed Challenge object
     component.challenge = {
       category: 'foobar',
       name: 'my name',
       mitigationUrl: 'https://owasp.example.com',
       hasCodingChallenge: true,
       description: 'lorem ipsum',
-      tagList: ['Easy']
-    } as any
+      tagList: ['Easy'],
+      originalDescription: 'Original description',
+      key: 'some-key',
+      difficulty: 3
+    } as EnrichedChallenge
 
+    // Already using the Config type for applicationConfiguration
     component.applicationConfiguration = {
       ctf: {
         showFlagsInNotifications: true
@@ -56,7 +62,7 @@ describe('ChallengeCard', () => {
       .toBeFalsy()
   })
 
-  it('should show a mitigation link when challenge has it but isnt solved', () => {
+  it('should show a mitigation link when challenge has it and is solved', () => {
     component.challenge.solved = true
     component.challenge.mitigationUrl = 'https://owasp.example.com'
     fixture.detectChanges()

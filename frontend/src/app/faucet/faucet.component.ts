@@ -138,7 +138,7 @@ export class FaucetComponent {
     }
   }
 
-  async handleChainChanged (chainId: string) {
+  async handleChainChanged () {
     await this.handleAuth()
   }
 

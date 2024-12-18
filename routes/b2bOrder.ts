@@ -9,7 +9,7 @@ import challengeUtils = require('../lib/challengeUtils')
 
 import * as utils from '../lib/utils'
 import { challenges } from '../data/datacache'
-const security = require('../lib/insecurity')
+import * as security from '../lib/insecurity'
 const safeEval = require('notevil')
 
 export default function b2bOrder () {

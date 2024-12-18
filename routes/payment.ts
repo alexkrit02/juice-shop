@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response } from 'express'
 import { CardModel } from '../models/card'
 
 interface displayCard {

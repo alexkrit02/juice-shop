@@ -10,9 +10,9 @@ import { SecurityAnswerModel } from '../models/securityAnswer'
 import { UserModel } from '../models/user'
 import { challenges } from '../data/datacache'
 
-import challengeUtils = require('../lib/challengeUtils')
+import * as challengeUtils from '../lib/challengeUtils'
 const users = require('../data/datacache').users
-const security = require('../lib/insecurity')
+import * as security from '../lib/insecurity'
 
 export default function resetPassword () {
   return ({ body, connection }: Request, res: Response, next: NextFunction) => {

@@ -5,10 +5,10 @@
 
 import fs from 'fs'
 import crypto from 'crypto'
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response, type NextFunction, RequestHandler } from 'express'
 import { type UserModel } from 'models/user'
 import expressJwt from 'express-jwt'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import jws from 'jws'
 import sanitizeHtmlLib from 'sanitize-html'
 import sanitizeFilenameLib from 'sanitize-filename'
@@ -37,7 +37,7 @@ interface IAuthenticatedUsers {
   get: (token: string) => ResponseWithUser | undefined
   tokenOf: (user: UserModel) => string | undefined
   from: (req: Request) => ResponseWithUser | undefined
-  updateFrom: (req: Request, user: ResponseWithUser) => any
+  updateFrom: (req: Request, user: ResponseWithUser) => void
 }
 
 export const hash = (data: string) => crypto.createHash('md5').update(data).digest('hex')
@@ -51,8 +51,8 @@ export const cutOffPoisonNullByte = (str: string) => {
   return str
 }
 
-export const isAuthorized = () => expressJwt(({ secret: publicKey }) as any)
-export const denyAll = () => expressJwt({ secret: '' + Math.random() } as any)
+export const isAuthorized = (): RequestHandler => expressJwt(({ secret: publicKey, algorithms: ['RS256'] }))
+export const denyAll = (): RequestHandler => expressJwt({ secret: '' + Math.random(), algorithms: ['HS256'] })
 export const authorize = (user = {}) => jwt.sign(user, privateKey, { expiresIn: '6h', algorithm: 'RS256' })
 export const verify = (token: string) => token ? (jws.verify as ((token: string, secret: string) => boolean))(token, publicKey) : false
 export const decode = (token: string) => { return jws.decode(token)?.payload }
@@ -92,8 +92,8 @@ export const authenticatedUsers: IAuthenticatedUsers = {
   }
 }
 
-export const userEmailFrom = ({ headers }: any) => {
-  return headers ? headers['x-user-email'] : undefined
+export const userEmailFrom = ({ headers }: Request): string | undefined => {
+  return headers ? headers['x-user-email'] as string | undefined : undefined
 }
 
 export const generateCoupon = (discount: number, date = new Date()) => {
@@ -179,23 +179,29 @@ export const appendUserId = () => {
     try {
       req.body.UserId = authenticatedUsers.tokenMap[utils.jwtFrom(req)].data.id
       next()
-    } catch (error: any) {
-      res.status(401).json({ status: 'error', message: error })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(401).json({ status: 'error', message: error })
+      }
+      else {
+        res.status(401).json({ status: 'error', message: 'Unknown error' })
+      }
     }
   }
 }
 
 export const updateAuthenticatedUsers = () => (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies.token || utils.jwtFrom(req)
+  const token = req.cookies.token || utils.jwtFrom(req);
   if (token) {
-    jwt.verify(token, publicKey, (err: Error | null, decoded: any) => {
-      if (err === null) {
+    jwt.verify(token, publicKey, (err: jwt.VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
+      if (err === null && decoded && typeof decoded !== 'string') {
+        const responseWithUser = decoded as ResponseWithUser;
         if (authenticatedUsers.get(token) === undefined) {
-          authenticatedUsers.put(token, decoded)
-          res.cookie('token', token)
+          authenticatedUsers.put(token, responseWithUser);
+          res.cookie('token', token);
         }
       }
-    })
+    });
   }
-  next()
-}
+  next();
+};

@@ -64,7 +64,7 @@ exports.observeFileUploadMetricsMiddleware = function observeFileUploadMetricsMi
 }
 
 exports.serveMetrics = function serveMetrics () {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response) => {
     challengeUtils.solveIf(challenges.exposedMetricsChallenge, () => {
       const userAgent = req.headers['user-agent'] ?? ''
       return !userAgent.includes('Prometheus')
@@ -174,13 +174,13 @@ exports.observeMetrics = function observeMetrics () {
 
         ChallengeModel.count({ where: { codingChallengeStatus: { [Op.eq]: 2 } } }).then((count: number) => {
           codingChallengesProgressMetrics.set({ phase: 'fix it' }, count)
-        }).catch((_: unknown) => {
+        }).catch(() => {
           throw new Error('Unable to retrieve and count such challenges. Please try again')
         })
 
         ChallengeModel.count({ where: { codingChallengeStatus: { [Op.ne]: 0 } } }).then((count: number) => {
           codingChallengesProgressMetrics.set({ phase: 'unsolved' }, challenges.length - count)
-        }).catch((_: unknown) => {
+        }).catch(() => {
           throw new Error('Unable to retrieve and count such challenges. Please try again')
         })
       })

@@ -21,7 +21,7 @@ import { EventEmitter } from '@angular/core'
 import { MatIconModule } from '@angular/material/icon'
 
 class MockSocket {
-  on (str: string, callback: any) {
+  on (_, callback: any) {
     callback()
   }
 

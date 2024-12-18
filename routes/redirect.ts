@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import utils = require('../lib/utils')
-import challengeUtils = require('../lib/challengeUtils')
+import * as utils from '../lib/utils'
+import * as challengeUtils from '../lib/challengeUtils'
 import { type Request, type Response, type NextFunction } from 'express'
 import { challenges } from '../data/datacache'
 
-const security = require('../lib/insecurity')
+import * as security from '../lib/insecurity'
 
 export default function performRedirect () {
   return ({ query }: Request, res: Response, next: NextFunction) => {

@@ -9,21 +9,22 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog'
 import { CookieModule, CookieService } from 'ngx-cookie'
 
 import { type ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { Config } from '../Services/configuration.service'
 import { WelcomeComponent } from './welcome.component'
 import { of } from 'rxjs'
 import { ConfigurationService } from '../Services/configuration.service'
 
+
 describe('WelcomeComponent', () => {
   let component: WelcomeComponent
-  let configurationService: any
-  let cookieService: any
+  let configurationService: jasmine.SpyObj<ConfigurationService>
+  let cookieService: CookieService
   let fixture: ComponentFixture<WelcomeComponent>
-  let dialog: any
+  let dialog: jasmine.SpyObj<MatDialog>
 
   beforeEach(() => {
     configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: {} }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: {} } as Config))
     dialog = jasmine.createSpyObj('MatDialog', ['open'])
     dialog.open.and.returnValue(null)
 
@@ -57,19 +58,19 @@ describe('WelcomeComponent', () => {
   })
 
   it('should open the welcome banner dialog if configured to show on start', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: true } } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: true } } } as Config))
     component.ngOnInit()
     expect(dialog.open).toHaveBeenCalled()
   })
 
   it('should not open the welcome banner dialog if configured to not show on start', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: false } } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: false } } }  as Config))
     component.ngOnInit()
     expect(dialog.open).not.toHaveBeenCalled()
   })
 
   it('should not open the welcome banner dialog if previously dismissed', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: true } } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { showOnFirstStart: true } } } as Config))
     cookieService.put('welcomebanner_status', 'dismiss')
     component.ngOnInit()
     expect(dialog.open).not.toHaveBeenCalled()

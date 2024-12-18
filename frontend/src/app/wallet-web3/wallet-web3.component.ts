@@ -45,7 +45,7 @@ export class WalletWeb3Component {
     window.ethereum.on('chainChanged', this.handleChainChanged.bind(this))
   }
 
-  async handleChainChanged (chainId: string) {
+  async handleChainChanged () {
     await this.handleAuth()
   }
 

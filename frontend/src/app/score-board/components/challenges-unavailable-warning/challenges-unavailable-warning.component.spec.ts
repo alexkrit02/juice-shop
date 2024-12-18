@@ -3,6 +3,7 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing'
 import { ChallengesUnavailableWarningComponent } from './challenges-unavailable-warning.component'
 import { TranslateModule } from '@ngx-translate/core'
 import { DEFAULT_FILTER_SETTING } from '../../filter-settings/FilterSetting'
+import { type EnrichedChallenge } from '../../types/EnrichedChallenge'
 
 describe('ChallengesUnavailableWarningComponent', () => {
   let component: ChallengesUnavailableWarningComponent
@@ -37,7 +38,7 @@ describe('ChallengesUnavailableWarningComponent', () => {
         tagList: ['Easy'],
         disabledEnv: null
       }
-    ] as any
+    ] as EnrichedChallenge[]
 
     component.filterSetting = structuredClone(DEFAULT_FILTER_SETTING)
 

@@ -8,7 +8,7 @@ import { type Request, type Response } from 'express'
 import { ChallengeModel } from '../models/challenge'
 import { challenges } from '../data/datacache'
 
-const sequelize = require('sequelize')
+import sequelize from 'sequelize'
 const Op = sequelize.Op
 
 export const continueCode = function continueCode () {

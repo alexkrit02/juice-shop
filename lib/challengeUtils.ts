@@ -18,15 +18,15 @@ const globalWithSocketIO = global as typeof globalThis & {
   io: SocketIOClientStatic & Server
 }
 
-export const solveIf = function (challenge: any, criteria: () => any, isRestore: boolean = false) {
+export const solveIf = function (challenge: ChallengeModel, criteria: () => boolean, isRestore: boolean = false) {
   if (notSolved(challenge) && criteria()) {
     solve(challenge, isRestore)
   }
 }
 
-export const solve = function (challenge: any, isRestore = false) {
+export const solve = function (challenge: ChallengeModel, isRestore = false) {
   challenge.solved = true
-  challenge.save().then((solvedChallenge: { difficulty: number, key: string, name: string }) => {
+  challenge.save().then((solvedChallenge: ChallengeModel) => {
     logger.info(`${isRestore ? colors.grey('Restored') : colors.green('Solved')} ${solvedChallenge.difficulty}-star ${colors.cyan(solvedChallenge.key)} (${solvedChallenge.name})`)
     sendNotification(solvedChallenge, isRestore)
     if (!isRestore) {
@@ -40,7 +40,7 @@ export const solve = function (challenge: any, isRestore = false) {
   })
 }
 
-export const sendNotification = function (challenge: { difficulty?: number, key: any, name: any, description?: any }, isRestore: boolean) {
+export const sendNotification = function (challenge: ChallengeModel, isRestore: boolean) {
   if (!notSolved(challenge)) {
     const flag = utils.ctfFlag(challenge.name)
     const notification = {
@@ -72,7 +72,7 @@ export const sendCodingChallengeNotification = function (challenge: { key: strin
   }
 }
 
-export const notSolved = (challenge: any) => challenge && !challenge.solved
+export const notSolved = (challenge: ChallengeModel) => challenge && !challenge.solved
 
 export const findChallengeByName = (challengeName: string) => {
   for (const c in challenges) {

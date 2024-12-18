@@ -4,11 +4,17 @@
  */
 
 import challengeUtils = require('../lib/challengeUtils')
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response } from 'express'
 import * as db from '../data/mongodb'
 import { challenges } from '../data/datacache'
+import { type Review } from '../data/types'
 
 const security = require('../lib/insecurity')
+
+interface UpdateResult {
+  modified: number;
+  original: Review[];
+}
 
 // vuln-code-snippet start noSqlReviewsChallenge forgedReviewChallenge
 export default function productReviews () {
@@ -19,13 +25,13 @@ export default function productReviews () {
       { $set: { message: req.body.message } },
       { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
     ).then(
-      (result: { modified: number, original: Array<{ author: any }> }) => {
-        challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modified > 1 }) // vuln-code-snippet hide-line
-        challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user?.data && result.original[0] && result.original[0].author !== user.data.email && result.modified === 1 }) // vuln-code-snippet hide-line
-        res.json(result)
+      (result: UpdateResult) => {
+        challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modified > 1 }); // vuln-code-snippet hide-line
+        challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user?.data && result.original[0] && result.original[0].author !== user.data.email && result.modified === 1 }); // vuln-code-snippet hide-line
+        res.json(result);
       }, (err: unknown) => {
-        res.status(500).json(err)
-      })
-  }
-}
+        res.status(500).json(err);
+      });
+  };
+};
 // vuln-code-snippet end noSqlReviewsChallenge forgedReviewChallenge

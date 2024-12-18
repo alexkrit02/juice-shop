@@ -51,6 +51,16 @@ import 'core-js/es/reflect'
  * user can disable parts of macroTask/DomEvents patch by setting following flags
  */
 
+interface CustomWindow extends Window {
+    __Zone_disable_requestAnimationFrame?: boolean;
+    __Zone_disable_on_property?: boolean;
+    __zone_symbol__BLACK_LISTED_EVENTS?: string[];
+    __Zone_enable_cross_context_check?: boolean;
+    global?: Window;
+}
+
+const customWindow = window as unknown as CustomWindow;
+
 // (window as any).__Zone_disable_requestAnimationFrame = true; // disable patch requestAnimationFrame
 // (window as any).__Zone_disable_on_property = true; // disable patch onProperty such as onclick
 // (window as any).__zone_symbol__BLACK_LISTED_EVENTS = ['scroll', 'mousemove']; // disable patch specified eventNames
@@ -65,7 +75,7 @@ import 'core-js/es/reflect'
  * Zone JS is required by default for Angular itself.
  */
 import 'zone.js' // Included with Angular CLI.
-(window as any).global = window
+customWindow.global = window;
 
 /** *************************************************************************************************
  * APPLICATION IMPORTS

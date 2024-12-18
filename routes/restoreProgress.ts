@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import Hashids = require('hashids/cjs')
+import Hashids from 'hashids/cjs'
 import { type Request, type Response } from 'express'
 import { challenges } from '../data/datacache'
 
-const challengeUtils = require('../lib/challengeUtils')
+import * as challengeUtils from '../lib/challengeUtils'
 
 export const restoreProgress = () => {
   return ({ params }: Request, res: Response) => {

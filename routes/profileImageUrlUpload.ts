@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: MIT
  */
 
-import fs = require('fs')
+import fs from 'fs'
 import { type Request, type Response, type NextFunction } from 'express'
 import logger from '../lib/logger'
 
 import { UserModel } from '../models/user'
 import * as utils from '../lib/utils'
-const security = require('../lib/insecurity')
-const request = require('request')
+import * as security from '../lib/insecurity'
+import request from 'request'
 
 export default function profileImageUrlUpload () {
   return (req: Request, res: Response, next: NextFunction) => {

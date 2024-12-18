@@ -2,6 +2,8 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { TutorialModeWarningComponent } from './tutorial-mode-warning.component'
 import { TranslateModule } from '@ngx-translate/core'
+import { type EnrichedChallenge } from '../../types/EnrichedChallenge'
+import { type Config } from 'src/app/Services/configuration.service'
 
 describe('TutorialModeWarningComponent', () => {
   let component: TutorialModeWarningComponent
@@ -30,13 +32,13 @@ describe('TutorialModeWarningComponent', () => {
         tutorialOrder: null,
         solved: false
       }
-    ] as any
+    ] as EnrichedChallenge[]
 
     component.applicationConfig = {
       challenges: {
         restrictToTutorialsFirst: true
       }
-    } as any
+    } as Config
 
     fixture.detectChanges()
   })
@@ -51,7 +53,7 @@ describe('TutorialModeWarningComponent', () => {
       challenges: {
         restrictToTutorialsFirst: false
       }
-    } as any
+    } as Config
     component.ngOnChanges()
     expect(component.tutorialModeActive).toBe(false)
   })
@@ -71,7 +73,7 @@ describe('TutorialModeWarningComponent', () => {
         tutorialOrder: null,
         solved: false
       }
-    ] as any
+    ] as EnrichedChallenge[]
     component.ngOnChanges()
     expect(component.tutorialModeActive).toBe(false)
   })

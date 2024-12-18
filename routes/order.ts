@@ -3,23 +3,25 @@
  * SPDX-License-Identifier: MIT
  */
 
-import path = require('path');
-import { type Request, type Response, type NextFunction } from 'express';
-import { BasketModel } from '../models/basket';
-import { ProductModel } from '../models/product';
-import { BasketItemModel } from '../models/basketitem';
-import { QuantityModel } from '../models/quantity';
-import { DeliveryModel } from '../models/delivery';
-import { WalletModel } from '../models/wallet';
-import challengeUtils = require('../lib/challengeUtils');
-import config from 'config';
-import * as utils from '../lib/utils';
-import * as db from '../data/mongodb';
-import { challenges, products } from '../data/datacache';
 
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
-const security = require('../lib/insecurity');
+import path = require('path')
+import { type Request, type Response, type NextFunction } from 'express'
+import { BasketModel } from '../models/basket'
+import { ProductModel } from '../models/product'
+import { BasketItemModel } from '../models/basketitem'
+import { QuantityModel } from '../models/quantity'
+import { DeliveryModel } from '../models/delivery'
+import { WalletModel } from '../models/wallet'
+import challengeUtils = require('../lib/challengeUtils')
+import config from 'config'
+import * as utils from '../lib/utils'
+import * as db from '../data/mongodb'
+import { challenges, products } from '../data/datacache'
+
+import fs from 'fs'
+const PDFDocument = require('pdfkit')
+const security = require('../lib/insecurity')
+
 
 interface Product {
   quantity: number;
