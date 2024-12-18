@@ -4,14 +4,27 @@ import { safeLoad } from 'js-yaml'
 import logger from '../lib/logger'
 
 export async function loadStaticData(file: string) {
-  const sanitizedFileName = path.basename(file);
-  const filePath = path.resolve('./data/static/' + sanitizedFileName + '.yml');
-  
   try {
+    // Sanitize input by allowing only alphanumeric and specific characters
+    const sanitizedFileName = file.replace(/[^a-zA-Z0-9-_]/g, '');
+    
+    if (sanitizedFileName !== file) {
+      throw new Error('Invalid file name detected');
+    }
+
+    // Resolve the file path and ensure it's within the expected directory
+    const baseDir = path.resolve('./data/static');
+    const filePath = path.join(baseDir, sanitizedFileName + '.yml');
+    
+    if (!filePath.startsWith(baseDir)) {
+      throw new Error('Path traversal attempt detected');
+    }
+
+    // Read and parse the file
     const data = await readFile(filePath, 'utf8');
     return safeLoad(data);
   } catch (error) {
-    logger.error('Could not open file: "' + filePath + '"');
+    logger.error(`Could not open file: "${file}" - Error`);
   }
 }
 
