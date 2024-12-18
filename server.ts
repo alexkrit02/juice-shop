@@ -104,30 +104,30 @@ import likeProductReviews from './routes/likeProductReviews.js';
 const security = require('./lib/insecurity')
 const app = express()
 const server = require('http').Server(app)
-const appConfiguration = require('./routes/appConfiguration')
-const captcha = require('./routes/captcha')
-const trackOrder = require('./routes/trackOrder')
-const countryMapping = require('./routes/countryMapping')
+import appConfiguration from './routes/appConfiguration.js';
+import captcha from './routes/captcha.js';
+import trackOrder from './routes/trackOrder.js';
+import countryMapping from './routes/countryMapping.js';
 const basketItems = require('./routes/basketItems')
-const saveLoginIp = require('./routes/saveLoginIp')
-const userProfile = require('./routes/userProfile')
-const updateUserProfile = require('./routes/updateUserProfile')
-const videoHandler = require('./routes/videoHandler')
+import saveLoginIp from './routes/saveLoginIp.js';
+import userProfile from './routes/userProfile.js';
+import updateUserProfile from './routes/updateUserProfile.js';
+import {getVideo, promotionVideo} from './routes/videoHandler.js';
 const twoFactorAuth = require('./routes/2fa')
-const languageList = require('./routes/languages')
-const imageCaptcha = require('./routes/imageCaptcha')
-const dataExport = require('./routes/dataExport')
-const address = require('./routes/address')
-const payment = require('./routes/payment')
-const wallet = require('./routes/wallet')
-const orderHistory = require('./routes/orderHistory')
-const delivery = require('./routes/delivery')
-const deluxe = require('./routes/deluxe')
-const memory = require('./routes/memory')
+import languageList from './routes/languages.js';
+import imageCaptcha from './routes/imageCaptcha.js';
+import dataExport from './routes/dataExport.js';
+import {getAddress, getAddressById, delAddressById} from './routes/address.js';
+import {getPaymentMethodById, getPaymentMethods, delPaymentMethodById} from './routes/payment.js';
+import {addWalletBalance, getWalletBalance} from './routes/wallet.js';
+import {orderHistory, toggleDeliveryStatus, allOrders} from './routes/orderHistory.js';
+import {getDeliveryMethod, getDeliveryMethods} from './routes/delivery.js';
+import {upgradeToDeluxe, deluxeMembershipStatus} from './routes/deluxe.js';
+import {addMemory, getMemories} from './routes/memory.js';
 const chatbot = require('./routes/chatbot')
-import locales from './data/static/locales.json'
-import i18n from 'i18n'
-import * as antiCheat from './lib/antiCheat'
+import locales from './data/static/locales.json' 
+import i18n from 'i18n';
+import {checkForPreSolveInteractions} from './lib/antiCheat.js';
 
 const appName = config.get<string>('application.customMetricsPrefix')
 const startupGauge = new Prometheus.Gauge({
@@ -218,7 +218,7 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.use(robots({ UserAgent: '*', Disallow: '/ftp' }))
 
   /* Check for any URLs having been called that would be expected for challenge solving without cheating */
-  app.use(antiCheat.checkForPreSolveInteractions())
+  app.use(checkForPreSolveInteractions())
 
   /* Checks for challenges solved by retrieving a file implicitly or explicitly */
   app.use('/assets/public/images/padding', verify.accessControlChallenges())
@@ -295,7 +295,7 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.post('/file-upload', uploadToMemory.single('file'), ensureFileIsPassed, metrics.observeFileUploadMetricsMiddleware(), handleZipFileUpload, checkUploadSize, checkFileType, handleXmlUpload)
   app.post('/profile/image/file', uploadToMemory.single('file'), ensureFileIsPassed, metrics.observeFileUploadMetricsMiddleware(), profileImageFileUpload())
   app.post('/profile/image/url', uploadToMemory.single('file'), profileImageUrlUpload())
-  app.post('/rest/memories', uploadToDisk.single('image'), ensureFileIsPassed, security.appendUserId(), metrics.observeFileUploadMetricsMiddleware(), memory.addMemory())
+  app.post('/rest/memories', uploadToDisk.single('image'), ensureFileIsPassed, security.appendUserId(), metrics.observeFileUploadMetricsMiddleware(), addMemory())
 
   app.use(bodyParser.text({ type: '*/*' }))
   app.use(function jsonParser (req: Request, res: Response, next: NextFunction) {
@@ -414,22 +414,22 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.use('/api/PrivacyRequests/:id', security.isAuthorized())
   /* PaymentMethodRequests: Only allowed for authenticated users */
   app.post('/api/Cards', security.appendUserId())
-  app.get('/api/Cards', security.appendUserId(), payment.getPaymentMethods())
+  app.get('/api/Cards', security.appendUserId(), getPaymentMethods())
   app.put('/api/Cards/:id', security.denyAll())
-  app.delete('/api/Cards/:id', security.appendUserId(), payment.delPaymentMethodById())
-  app.get('/api/Cards/:id', security.appendUserId(), payment.getPaymentMethodById())
+  app.delete('/api/Cards/:id', security.appendUserId(), delPaymentMethodById())
+  app.get('/api/Cards/:id', security.appendUserId(), getPaymentMethodById())
   /* PrivacyRequests: Only POST allowed for authenticated users */
   app.post('/api/PrivacyRequests', security.isAuthorized())
   app.get('/api/PrivacyRequests', security.denyAll())
   app.use('/api/PrivacyRequests/:id', security.denyAll())
 
   app.post('/api/Addresss', security.appendUserId())
-  app.get('/api/Addresss', security.appendUserId(), address.getAddress())
+  app.get('/api/Addresss', security.appendUserId(), getAddress())
   app.put('/api/Addresss/:id', security.appendUserId())
-  app.delete('/api/Addresss/:id', security.appendUserId(), address.delAddressById())
-  app.get('/api/Addresss/:id', security.appendUserId(), address.getAddressById())
-  app.get('/api/Deliverys', delivery.getDeliveryMethods())
-  app.get('/api/Deliverys/:id', delivery.getDeliveryMethod())
+  app.delete('/api/Addresss/:id', security.appendUserId(), delAddressById())
+  app.get('/api/Addresss/:id', security.appendUserId(), getAddressById())
+  app.get('/api/Deliverys', getDeliveryMethods())
+  app.get('/api/Deliverys/:id', getDeliveryMethod())
   // vuln-code-snippet end changeProductChallenge
 
   /* Verify the 2FA Token */
@@ -589,14 +589,14 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.post('/rest/user/data-export', security.appendUserId(), imageCaptcha.verifyCaptcha())
   app.post('/rest/user/data-export', security.appendUserId(), dataExport())
   app.get('/rest/languages', languageList())
-  app.get('/rest/order-history', orderHistory.orderHistory())
-  app.get('/rest/order-history/orders', security.isAccounting(), orderHistory.allOrders())
-  app.put('/rest/order-history/:id/delivery-status', security.isAccounting(), orderHistory.toggleDeliveryStatus())
-  app.get('/rest/wallet/balance', security.appendUserId(), wallet.getWalletBalance())
-  app.put('/rest/wallet/balance', security.appendUserId(), wallet.addWalletBalance())
-  app.get('/rest/deluxe-membership', deluxe.deluxeMembershipStatus())
-  app.post('/rest/deluxe-membership', security.appendUserId(), deluxe.upgradeToDeluxe())
-  app.get('/rest/memories', memory.getMemories())
+  app.get('/rest/order-history', orderHistory())
+  app.get('/rest/order-history/orders', security.isAccounting(), allOrders())
+  app.put('/rest/order-history/:id/delivery-status', security.isAccounting(), toggleDeliveryStatus())
+  app.get('/rest/wallet/balance', security.appendUserId(), getWalletBalance())
+  app.put('/rest/wallet/balance', security.appendUserId(), addWalletBalance())
+  app.get('/rest/deluxe-membership', deluxeMembershipStatus())
+  app.post('/rest/deluxe-membership', security.appendUserId(), upgradeToDeluxe())
+  app.get('/rest/memories', getMemories())
   app.get('/rest/chatbot/status', chatbot.status())
   app.post('/rest/chatbot/respond', chatbot.process())
   /* NoSQL API endpoints */
@@ -627,8 +627,8 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.get('/redirect', redirect())
 
   /* Routes for promotion video page */
-  app.get('/promotion', videoHandler.promotionVideo())
-  app.get('/video', videoHandler.getVideo())
+  app.get('/promotion', promotionVideo())
+  app.get('/video', getVideo())
 
   /* Routes for profile page */
   app.get('/profile', security.updateAuthenticatedUsers(), userProfile())
@@ -650,7 +650,7 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   console.error(err)
 })
 
-import multer from 'multer'
+const multer = require('multer')
 const uploadToMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200000 } })
 const mimeTypeMap: any = {
   'image/png': 'png',

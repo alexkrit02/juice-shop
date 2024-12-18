@@ -9,10 +9,10 @@ import challengeUtils = require('../lib/challengeUtils')
 import * as utils from '../lib/utils'
 
 const security = require('../lib/insecurity')
-const cache = require('../data/datacache')
+import * as cache from '../data/datacache'
 const challenges = cache.challenges
 
-module.exports = function updateUserProfile () {
+export default function updateUserProfile () {
   return (req: Request, res: Response, next: NextFunction) => {
     const loggedInUser = security.authenticatedUsers.get(req.cookies.token)
 

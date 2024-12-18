@@ -17,7 +17,7 @@ const pug = require('pug')
 const themes = require('../views/themes/themes').themes
 const entities = new Entities()
 
-module.exports = function getUserProfile () {
+export default function getUserProfile () {
   return (req: Request, res: Response, next: NextFunction) => {
     fs.readFile('views/userProfile.pug', function (err, buf) {
       if (err != null) throw err

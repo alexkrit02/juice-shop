@@ -8,6 +8,10 @@ import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
 import { ComplaintService } from './complaint.service'
 
+interface ApplicationVersionResponse {
+  version: string;
+}
+
 describe('ComplaintService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,15 +26,15 @@ describe('ComplaintService', () => {
 
   it('should create complaint directly via the rest api', inject([ComplaintService, HttpTestingController],
     fakeAsync((service: ComplaintService, httpMock: HttpTestingController) => {
-      let res: any
-      service.save(null).subscribe((data) => (res = data))
+      let res: ApplicationVersionResponse | undefined
+      service.save(null).subscribe((data: ApplicationVersionResponse) => (res = data))
       const req = httpMock.expectOne('http://localhost:3000/api/Complaints/')
       req.flush({ data: 'apiResponse' })
 
       tick()
       expect(req.request.method).toBe('POST')
       expect(req.request.body).toBeNull()
-      expect(res).toBe('apiResponse')
+      expect(res?.version).toBe('apiResponse')
       httpMock.verify()
     })
   ))

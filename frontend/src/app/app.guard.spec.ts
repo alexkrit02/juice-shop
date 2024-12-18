@@ -60,7 +60,7 @@ describe('LoginGuard', () => {
 })
 
 describe('AdminGuard', () => {
-  let loginGuard: any
+  let loginGuard: jasmine.SpyObj<LoginGuard>
 
   beforeEach(() => {
     loginGuard = jasmine.createSpyObj('LoginGuard', ['tokenDecode', 'forbidRoute'])
@@ -108,7 +108,7 @@ describe('AdminGuard', () => {
 })
 
 describe('AccountingGuard', () => {
-  let loginGuard: any
+  let loginGuard: jasmine.SpyObj<LoginGuard>
 
   beforeEach(() => {
     loginGuard = jasmine.createSpyObj('LoginGuard', ['tokenDecode', 'forbidRoute'])
@@ -156,7 +156,7 @@ describe('AccountingGuard', () => {
 })
 
 describe('DeluxeGuard', () => {
-  let loginGuard: any
+  let loginGuard: jasmine.SpyObj<LoginGuard>
 
   beforeEach(() => {
     loginGuard = jasmine.createSpyObj('LoginGuard', ['tokenDecode'])

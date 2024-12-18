@@ -8,7 +8,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { CookieModule, CookieService } from 'ngx-cookie'
 
 import { type ComponentFixture, fakeAsync, TestBed, waitForAsync } from '@angular/core/testing'
-
+import { Config } from '../Services/configuration.service'
 import { WelcomeBannerComponent } from './welcome-banner.component'
 import { MatDialogRef } from '@angular/material/dialog'
 import { MatIconModule } from '@angular/material/icon'
@@ -19,13 +19,13 @@ import { ConfigurationService } from '../Services/configuration.service'
 describe('WelcomeBannerComponent', () => {
   let component: WelcomeBannerComponent
   let fixture: ComponentFixture<WelcomeBannerComponent>
-  let cookieService: any
+  let cookieService: CookieService
   let matDialogRef: MatDialogRef<WelcomeBannerComponent>
-  let configurationService: any
+  let configurationService: jasmine.SpyObj<ConfigurationService>
 
   beforeEach(waitForAsync(() => {
     configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } } as Config))
     matDialogRef = jasmine.createSpyObj('MatDialogRef', ['close'])
     TestBed.configureTestingModule({
       imports: [
@@ -75,7 +75,7 @@ describe('WelcomeBannerComponent', () => {
   })
 
   it('should set banner properties as obtained from configuration', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { title: 'Title', message: 'Message' } } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { welcomeBanner: { title: 'Title', message: 'Message' } } } as Config))
     component.ngOnInit()
 
     expect(component.title).toBe('Title')
@@ -83,14 +83,14 @@ describe('WelcomeBannerComponent', () => {
   })
 
   it('should show hacking instructor if enabled in configuration', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ hackingInstructor: { isEnabled: true } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ hackingInstructor: { isEnabled: true } } as Config))
     component.ngOnInit()
 
     expect(component.showHackingInstructor).toBe(true)
   })
 
   it('should prevent dismissing banner in tutorial mode', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ challenges: { restrictToTutorialsFirst: true }, hackingInstructor: { isEnabled: true } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ challenges: { restrictToTutorialsFirst: true }, hackingInstructor: { isEnabled: true } } as  Config))
     component.ngOnInit()
 
     expect(component.dialogRef.disableClose).toBe(true)

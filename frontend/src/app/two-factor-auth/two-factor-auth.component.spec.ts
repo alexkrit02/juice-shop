@@ -27,20 +27,20 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 
 import { QRCodeModule } from 'anuglar2-qrcode'
 import { of } from 'rxjs'
-import { ConfigurationService } from '../Services/configuration.service'
+import { ConfigurationService, Config } from '../Services/configuration.service'
 import { TwoFactorAuthService } from '../Services/two-factor-auth-service'
 import { throwError } from 'rxjs/internal/observable/throwError'
 
 describe('TwoFactorAuthComponent', () => {
   let component: TwoFactorAuthComponent
   let fixture: ComponentFixture<TwoFactorAuthComponent>
-  let twoFactorAuthService: any
-  let configurationService: any
+  let twoFactorAuthService: jasmine.SpyObj<TwoFactorAuthService>
+  let configurationService: jasmine.SpyObj<ConfigurationService>
 
   beforeEach(waitForAsync(() => {
     twoFactorAuthService = jasmine.createSpyObj('TwoFactorAuthService', ['status', 'setup', 'disable'])
     configurationService = jasmine.createSpyObj('ConfigurationService', ['getApplicationConfiguration'])
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { } } as Config))
     TestBed.configureTestingModule({
       declarations: [TwoFactorAuthComponent],
       imports: [
@@ -80,7 +80,7 @@ describe('TwoFactorAuthComponent', () => {
   })
 
   it('should set TOTP secret and URL if 2FA is not already set up', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { name: 'Test App' } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { name: 'Test App' } } as Config))
     twoFactorAuthService.status.and.returnValue(of({ setup: false, email: 'email', secret: 'secret', setupToken: '12345' }))
 
     component.updateStatus()
@@ -91,7 +91,7 @@ describe('TwoFactorAuthComponent', () => {
   })
 
   it('should not set TOTP secret and URL if 2FA is already set up', () => {
-    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { name: 'Test App' } }))
+    configurationService.getApplicationConfiguration.and.returnValue(of({ application: { name: 'Test App' } } as Config))
     twoFactorAuthService.status.and.returnValue(of({ setup: true, email: 'email', secret: 'secret', setupToken: '12345' }))
 
     component.updateStatus()
@@ -102,7 +102,7 @@ describe('TwoFactorAuthComponent', () => {
   })
 
   it('should confirm successful setup of 2FA', () => {
-    twoFactorAuthService.setup.and.returnValue(of({}))
+    twoFactorAuthService.setup.and.returnValue(of())
     component.setupStatus = false
     component.twoFactorSetupForm.get('passwordControl').setValue('password')
     component.twoFactorSetupForm.get('initalTokenControl').setValue('12345')
@@ -132,7 +132,7 @@ describe('TwoFactorAuthComponent', () => {
 
   it('should confirm successfully disabling 2FA', () => {
     twoFactorAuthService.status.and.returnValue(of({ setup: true, email: 'email', secret: 'secret', setupToken: '12345' }))
-    twoFactorAuthService.disable.and.returnValue(of({}))
+    twoFactorAuthService.disable.and.returnValue(of())
     component.setupStatus = true
     component.twoFactorDisableForm.get('passwordControl').setValue('password')
 

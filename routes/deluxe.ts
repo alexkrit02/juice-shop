@@ -13,7 +13,7 @@ import { challenges } from '../data/datacache'
 
 const security = require('../lib/insecurity')
 
-module.exports.upgradeToDeluxe = function upgradeToDeluxe () {
+export function upgradeToDeluxe () {
   return async (req: Request, res: Response) => {
     try {
       const user = await UserModel.findOne({ where: { id: req.body.UserId, role: security.roles.customer } })
@@ -56,7 +56,7 @@ module.exports.upgradeToDeluxe = function upgradeToDeluxe () {
   }
 }
 
-module.exports.deluxeMembershipStatus = function deluxeMembershipStatus () {
+export function deluxeMembershipStatus () {
   return (req: Request, res: Response) => {
     if (security.isCustomer(req)) {
       res.status(200).json({ status: 'success', data: { membershipCost: 49 } })

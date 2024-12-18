@@ -10,7 +10,7 @@ import { Op } from 'sequelize'
 import svgCaptcha from 'svg-captcha'
 const security = require('../lib/insecurity')
 
-function imageCaptchas () {
+export default function imageCaptchas () {
   return (req: Request, res: Response) => {
     const captcha = svgCaptcha.create({ size: 5, noise: 2, color: true })
 

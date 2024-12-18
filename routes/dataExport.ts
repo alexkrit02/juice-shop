@@ -12,7 +12,7 @@ import { challenges } from '../data/datacache'
 import challengeUtils = require('../lib/challengeUtils')
 const security = require('../lib/insecurity')
 
-module.exports = function dataExport () {
+export default function dataExport () {
   return async (req: Request, res: Response, next: NextFunction) => {
     const loggedInUser = security.authenticatedUsers.get(req.headers?.authorization?.replace('Bearer ', ''))
     if (loggedInUser?.data?.email && loggedInUser.data.id) {

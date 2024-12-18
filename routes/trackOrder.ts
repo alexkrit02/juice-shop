@@ -13,7 +13,7 @@ interface Order {
   orderId: string;
 }
 
-module.exports = function trackOrder () {
+export default function trackOrder () {
   return (req: Request, res: Response) => {
     const id = !utils.isChallengeEnabled(challenges.reflectedXssChallenge) ? String(req.params.id).replace(/[^\w-]+/g, '') : req.params.id
 

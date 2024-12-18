@@ -12,7 +12,7 @@ import { DOCUMENT } from '@angular/common'
 export class FormSubmitService {
   constructor (@Inject(DOCUMENT) private readonly _document: HTMLDocument) { }
 
-  attachEnterKeyHandler (formId: string, submitButtonId: string, onSubmit: any) {
+  attachEnterKeyHandler (formId: string, submitButtonId: string, onSubmit: () => void) {
     const form = this._document.getElementById(formId) as HTMLFormElement
     const submitButton = this._document.getElementById(submitButtonId) as HTMLInputElement
 

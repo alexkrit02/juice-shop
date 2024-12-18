@@ -8,6 +8,10 @@ import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
 import { AdministrationService } from './administration.service'
 
+interface ApplicationVersionResponse {
+  version: string;
+}
+
 describe('AdministrationService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,14 +26,14 @@ describe('AdministrationService', () => {
 
   it('should get application version directly from the rest api', inject([AdministrationService, HttpTestingController],
     fakeAsync((service: AdministrationService, httpMock: HttpTestingController) => {
-      let res: any
-      service.getApplicationVersion().subscribe((data) => (res = data))
+      let res: ApplicationVersionResponse | undefined
+      service.getApplicationVersion().subscribe((data: ApplicationVersionResponse) => (res = data))
       const req = httpMock.expectOne('http://localhost:3000/rest/admin/application-version')
       req.flush({ version: 'apiResponse' })
       tick()
 
       expect(req.request.method).toBe('GET')
-      expect(res).toBe('apiResponse')
+      expect(res?.version).toBe('apiResponse')
       httpMock.verify()
     })
   ))
