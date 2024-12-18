@@ -8,6 +8,10 @@ import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
 import { CountryMappingService } from './country-mapping.service'
 
+interface ApplicationVersionResponse {
+  version: string;
+}
+
 describe('CountryMappingService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,8 +26,8 @@ describe('CountryMappingService', () => {
 
   it('should get the country mapping directly through the rest API', inject([CountryMappingService, HttpTestingController],
     fakeAsync((service: CountryMappingService, httpMock: HttpTestingController) => {
-      let res: any
-      service.getCountryMapping().subscribe((data) => (res = data))
+      let res: ApplicationVersionResponse | undefined
+      service.getCountryMapping().subscribe((data: ApplicationVersionResponse) => (res = data))
 
       const req = httpMock.expectOne('http://localhost:3000/rest/country-mapping')
       req.flush('apiResponse')
@@ -31,7 +35,7 @@ describe('CountryMappingService', () => {
       tick()
 
       expect(req.request.method).toBe('GET')
-      expect(res).toBe('apiResponse')
+      expect(res?.version).toBe('apiResponse')
 
       httpMock.verify()
     })

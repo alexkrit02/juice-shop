@@ -16,6 +16,15 @@ import { SelectionModel } from '@angular/cdk/collections'
 
 library.add(faRocket, faShippingFast, faTruck)
 
+interface Address {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
 @Component({
   selector: 'app-delivery-method',
   templateUrl: './delivery-method.component.html',
@@ -23,41 +32,57 @@ library.add(faRocket, faShippingFast, faTruck)
 })
 export class DeliveryMethodComponent implements OnInit {
   public displayedColumns = ['Selection', 'Name', 'Price', 'ETA']
-  public methods: DeliveryMethod[]
-  public address: any
-  public dataSource
-  public deliveryMethodId: number = undefined
+  public methods: DeliveryMethod[] = []
+  public address: Address | undefined
+  public dataSource!: MatTableDataSource<DeliveryMethod>
+  public deliveryMethodId: number | undefined = undefined
   selection = new SelectionModel<DeliveryMethod>(false, [])
 
-  constructor (private readonly location: Location, private readonly deliverySerivce: DeliveryService,
-    private readonly addressService: AddressService, private readonly router: Router, private readonly ngZone: NgZone) { }
+  constructor (
+    private readonly location: Location,
+    private readonly deliverySerivce: DeliveryService,
+    private readonly addressService: AddressService,
+    private readonly router: Router,
+    private readonly ngZone: NgZone
+  ) { }
 
   ngOnInit () {
-    this.addressService.getById(sessionStorage.getItem('addressId')).subscribe((address) => {
-      this.address = address
-    }, (error) => { console.log(error) })
+    const addressId = sessionStorage.getItem('addressId');
+    if (addressId) {
+      this.addressService.getById(addressId).subscribe(
+        (address: Address) => {
+          this.address = address;
+        },
+        (error) => { console.log(error); }
+      );
+    }
 
-    this.deliverySerivce.get().subscribe((methods) => {
-      console.log(methods)
-      this.methods = methods
-      this.dataSource = new MatTableDataSource<DeliveryMethod>(this.methods)
-    }, (error) => { console.log(error) })
+    this.deliverySerivce.get().subscribe(
+      (methods: DeliveryMethod[]) => {
+        console.log(methods);
+        this.methods = methods;
+        this.dataSource = new MatTableDataSource<DeliveryMethod>(this.methods);
+      },
+      (error) => { console.log(error); }
+    );
   }
 
-  selectMethod (id) {
+  selectMethod (id: number) {
     if (this.selection.hasValue() || id) {
-      this.deliveryMethodId = id
+      this.deliveryMethodId = id;
     } else {
-      this.deliveryMethodId = undefined
+      this.deliveryMethodId = undefined;
     }
   }
 
   routeToPreviousUrl () {
-    this.location.back()
+    this.location.back();
   }
 
   chooseDeliveryMethod () {
-    sessionStorage.setItem('deliveryMethodId', this.deliveryMethodId.toString())
-    this.ngZone.run(async () => await this.router.navigate(['/payment', 'shop']))
+    if (this.deliveryMethodId !== undefined) {
+      sessionStorage.setItem('deliveryMethodId', this.deliveryMethodId.toString());
+      this.ngZone.run(async () => await this.router.navigate(['/payment', 'shop']));
+    }
   }
 }

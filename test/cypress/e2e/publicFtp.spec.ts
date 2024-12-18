@@ -6,6 +6,7 @@ describe('/ftp', () => {
     })
   })
 
+
   // describe('challenge "errorHandling"', () => {
   //   it('should leak information through error message accessing /ftp/easter.egg due to wrong file suffix', () => {
   //     cy.visit('/ftp/easter.egg', { failOnStatusCode: false })
@@ -17,6 +18,7 @@ describe('/ftp', () => {
   //     cy.expectChallengeSolved({ challenge: 'Error Handling' })
   //   })
   // })
+
 
   describe('challenge "forgottenBackup"', () => {
     it('should be able to access file /ftp/coupons_2013.md.bak with poison null byte attack', () => {

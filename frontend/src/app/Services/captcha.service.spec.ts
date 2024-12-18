@@ -8,6 +8,10 @@ import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
 import { CaptchaService } from './captcha.service'
 
+interface ApplicationVersionResponse {
+  version: string;
+}
+
 describe('CaptchaService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,14 +26,14 @@ describe('CaptchaService', () => {
 
   it('should get captcha directly from the rest api', inject([CaptchaService, HttpTestingController],
     fakeAsync((service: CaptchaService, httpMock: HttpTestingController) => {
-      let res: any
-      service.getCaptcha().subscribe((data) => (res = data))
+      let res: ApplicationVersionResponse | undefined
+      service.getCaptcha().subscribe((data: ApplicationVersionResponse) => (res = data))
       const req = httpMock.expectOne('http://localhost:3000/rest/captcha/')
       req.flush('apiResponse')
 
       tick()
       expect(req.request.method).toBe('GET')
-      expect(res).toBe('apiResponse')
+      expect(res?.version).toBe('apiResponse')
       httpMock.verify()
     })
   ))

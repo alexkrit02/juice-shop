@@ -8,7 +8,7 @@ import { DeliveryModel } from '../models/delivery'
 
 import {isDeluxe} from '../lib/insecurity'
 
-module.exports.getDeliveryMethods = function getDeliveryMethods () {
+export function getDeliveryMethods () {
   return async (req: Request, res: Response) => {
     const methods = await DeliveryModel.findAll()
     if (methods) {
@@ -29,7 +29,7 @@ module.exports.getDeliveryMethods = function getDeliveryMethods () {
   }
 }
 
-module.exports.getDeliveryMethod = function getDeliveryMethod () {
+export function getDeliveryMethod () {
   return async (req: Request, res: Response) => {
     const method = await DeliveryModel.findOne({ where: { id: req.params.id } })
     if (method != null) {

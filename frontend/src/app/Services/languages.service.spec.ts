@@ -8,6 +8,10 @@ import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
 import { LanguagesService } from './languages.service'
 
+interface ApplicationVersionResponse {
+  version: string;
+}
+
 describe('LanguagesService', () => {
   beforeEach(() => TestBed.configureTestingModule({
     imports: [HttpClientTestingModule],
@@ -21,8 +25,8 @@ describe('LanguagesService', () => {
 
   it('should get the language list through the rest API', inject([LanguagesService, HttpTestingController],
     fakeAsync((service: LanguagesService, httpMock: HttpTestingController) => {
-      let res: any
-      service.getLanguages().subscribe((data) => (res = data))
+      let res: ApplicationVersionResponse | undefined
+      service.getLanguages().subscribe((data: ApplicationVersionResponse) => (res = data))
 
       const req = httpMock.expectOne('http://localhost:3000/rest/languages')
       req.flush('apiResponse')
@@ -30,7 +34,7 @@ describe('LanguagesService', () => {
       tick()
 
       expect(req.request.method).toBe('GET')
-      expect(res).toBe('apiResponse')
+      expect(res?.version).toBe('apiResponse')
 
       httpMock.verify()
     })

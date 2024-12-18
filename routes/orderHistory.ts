@@ -8,7 +8,7 @@ import { ordersCollection } from '../data/mongodb'
 
 const security = require('../lib/insecurity')
 
-module.exports.orderHistory = function orderHistory () {
+export function orderHistory () {
   return async (req: Request, res: Response, next: NextFunction) => {
     const loggedInUser = security.authenticatedUsers.get(req.headers?.authorization?.replace('Bearer ', ''))
     if (loggedInUser?.data?.email && loggedInUser.data.id) {
@@ -22,14 +22,14 @@ module.exports.orderHistory = function orderHistory () {
   }
 }
 
-module.exports.allOrders = function allOrders () {
+export function allOrders () {
   return async (req: Request, res: Response) => {
     const order = await ordersCollection.find()
     res.status(200).json({ status: 'success', data: order.reverse() })
   }
 }
 
-module.exports.toggleDeliveryStatus = function toggleDeliveryStatus () {
+export function toggleDeliveryStatus () {
   return async (req: Request, res: Response) => {
     const deliveryStatus = !req.body.deliveryStatus
     const eta = deliveryStatus ? '0' : '1'

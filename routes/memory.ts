@@ -7,7 +7,7 @@ import { type Request, type Response } from 'express'
 import { MemoryModel } from '../models/memory'
 import { UserModel } from '../models/user'
 
-module.exports.addMemory = function addMemory () {
+export function addMemory () {
   return async (req: Request, res: Response) => {
     const record = {
       caption: req.body.caption,
@@ -19,7 +19,7 @@ module.exports.addMemory = function addMemory () {
   }
 }
 
-module.exports.getMemories = function getMemories () {
+export function getMemories () {
   return async (_req: Request, res: Response) => {
     const memories = await MemoryModel.findAll({ include: [UserModel] })
     res.status(200).json({ status: 'success', data: memories })

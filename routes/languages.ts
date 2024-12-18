@@ -16,7 +16,7 @@ interface Language {
   gauge: string
 }
 
-module.exports = function getLanguageList() {
+export default function getLanguageList() {
   return (req: Request, res: Response, next: NextFunction) => {
     const languages: Language[] = []
     let count = 0

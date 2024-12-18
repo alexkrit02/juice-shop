@@ -16,7 +16,7 @@ import challengeUtils = require('../lib/challengeUtils')
 import config from 'config'
 import * as utils from '../lib/utils'
 import * as db from '../data/mongodb'
-import { challenges, products } from '../data/datacache'
+import { challenges} from '../data/datacache'
 
 import fs from 'fs'
 const PDFDocument = require('pdfkit')
@@ -223,3 +223,4 @@ const campaigns = {
   WMNSDY2019: { validOn: new Date('Mar 08, 2019 00:00:00 GMT+0100').getTime(), discount: 75 },
   WMNSDY2020: { validOn: new Date('Mar 08, 2020 00:00:00 GMT+0100').getTime(), discount: 80 },
 };
+

@@ -6,7 +6,7 @@
 import { type Request, type Response } from 'express'
 import logger from '../lib/logger'
 
-module.exports = function countryMapping (config = require('config')) {
+export default function countryMapping (config = require('config')) {
   return (req: Request, res: Response) => {
     try {
       const countryMapping = config.get('ctf.countryMapping')

@@ -40,7 +40,7 @@ export const getFindItAttempts = (challengeKey: string) => {
 function totalAccuracy (phase: Phase) {
   let sumAccuracy = 0
   let totalSolved = 0
-  Object.entries(solves).forEach(([_, value]) => {
+  Object.entries(solves).forEach(([, value]) => {
     if (value[phase]) {
       sumAccuracy += 1 / value.attempts[phase]
       totalSolved++

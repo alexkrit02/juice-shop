@@ -12,7 +12,7 @@ const security = require('../lib/insecurity')
 import * as cache from '../data/datacache'
 const challenges = cache.challenges
 
-module.exports = function saveLoginIp () {
+export default function saveLoginIp () {
   return (req: Request, res: Response, next: NextFunction) => {
     const loggedInUser = security.authenticatedUsers.from(req)
     if (loggedInUser !== undefined) {

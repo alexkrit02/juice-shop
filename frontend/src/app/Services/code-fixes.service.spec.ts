@@ -19,7 +19,7 @@ describe('CodeFixesService', () => {
 
   it('should get code fixes for challenge directly from the rest api', inject([CodeFixesService, HttpTestingController],
     fakeAsync((service: CodeFixesService, httpMock: HttpTestingController) => {
-      let res: any
+      let res: unknown
       service.get('testChallenge').subscribe((data) => (res = data))
 
       const req = httpMock.expectOne('http://localhost:3000/snippets/fixes/testChallenge')
@@ -34,7 +34,7 @@ describe('CodeFixesService', () => {
 
   it('should submit solution for "Fit It" phase of coding challenge via the rest api', inject([CodeFixesService, HttpTestingController],
     fakeAsync((service: CodeFixesService, httpMock: HttpTestingController) => {
-      let res: any
+      let res: unknown
       service.check('testChallenge', 1).subscribe((data) => (res = data))
       const req = httpMock.expectOne('http://localhost:3000/snippets/fixes')
       req.flush('apiResponse')
